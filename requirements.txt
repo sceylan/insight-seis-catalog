@@ -1,0 +1,5 @@
+obspy
+numpy
+xmltodict
+cartopy
+matplotlib
