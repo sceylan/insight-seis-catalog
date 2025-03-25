@@ -355,32 +355,32 @@ class MarsEvent:
         when magnitudes are recalculated for a clean start."""
         self.magnitudes.clear()
 
-    def calculate_magnitudes(self, spectral_fitting=None, winlen_sec=25, padding=True, detick_nfsamp=0):
-        """
-        Calculates the magnitudes for the event. The magnitudes are calculated based 
-        on the picks and arrivals in the event. If the event is analyzed via the 
-        spectral fitting, the moment magnitude is calculated using the A0 from manual 
-        spectral fitting. Otherwise, spectral fitting is performed on the event to obtain A0.
-        """
-        logger.info('Calculating new magnitudes for the event')
+    # def calculate_magnitudes(self, spectral_fitting=None, winlen_sec=25, padding=True, detick_nfsamp=0):
+    #     """
+    #     Calculates the magnitudes for the event. The magnitudes are calculated based 
+    #     on the picks and arrivals in the event. If the event is analyzed via the 
+    #     spectral fitting, the moment magnitude is calculated using the A0 from manual 
+    #     spectral fitting. Otherwise, spectral fitting is performed on the event to obtain A0.
+    #     """
+    #     logger.info('Calculating new magnitudes for the event')
 
-        # Check if the preferred origin is set
-        if self.get_preferred_origin() is None and len(self.origins) == 0:
-            logger.error('No origins for the event. Cannot calculate magnitudes.')
-            return
+    #     # Check if the preferred origin is set
+    #     if self.get_preferred_origin() is None and len(self.origins) == 0:
+    #         logger.error('No origins for the event. Cannot calculate magnitudes.')
+    #         return
 
-        origin = self.get_preferred_origin() or self.origins[0]
-        if len(origin.get_arrivals()) == 0:
-            logger.error('No arrivals are set for the (preferred) origin')
-            return
+    #     origin = self.get_preferred_origin() or self.origins[0]
+    #     if len(origin.get_arrivals()) == 0:
+    #         logger.error('No arrivals are set for the (preferred) origin')
+    #         return
 
-        # Calculate the amplitudes for the event
-        calculate_amplitudes(event=self, spectral_fitting=spectral_fitting,
-                             winlen_sec=winlen_sec, padding=padding, 
-                             detick_nfsamp=detick_nfsamp)
+    #     # Calculate the amplitudes for the event
+    #     calculate_amplitudes(event=self, spectral_fitting=spectral_fitting,
+    #                          winlen_sec=winlen_sec, padding=padding, 
+    #                          detick_nfsamp=detick_nfsamp)
 
-        # Calculate the magnitudes for the event
-        calculate_magnitudes(event=self)
+    #     # Calculate the magnitudes for the event
+    #     calculate_magnitudes(event=self)
         
     def set_preferred_origin_public_id(self, public_id):
         self.preferred_origin_id = public_id
@@ -520,57 +520,57 @@ class MarsEvent:
                 return pick
         return None
     
-    def read_waveforms(self, sds_path=None, inventory=None, output=['DISP'], 
-                       instruments=['VBB'], rotate_to_zne=False, save_local=False,
-                       channels_and_locs=None):
-        """ Read the waveforms for the event. If the waveforms are already
-        read, this method will overwrite the previous object."""
-        # Try with the internally stored path and inventory, if not provided.
-        # Hopefully, the event has been read before and these are already set.
-        if sds_path is None:
-            sds_path = self.sds_path
-        if inventory is None:
-            inventory = self.inventory
+    # def read_waveforms(self, sds_path=None, inventory=None, output=['DISP'], 
+    #                    instruments=['VBB'], rotate_to_zne=False, save_local=False,
+    #                    channels_and_locs=None):
+    #     """ Read the waveforms for the event. If the waveforms are already
+    #     read, this method will overwrite the previous object."""
+    #     # Try with the internally stored path and inventory, if not provided.
+    #     # Hopefully, the event has been read before and these are already set.
+    #     if sds_path is None:
+    #         sds_path = self.sds_path
+    #     if inventory is None:
+    #         inventory = self.inventory
 
-        # Check again if the path and inventory are set
-        if sds_path is None or inventory is None:
-            logger.error('No SDS path or inventory is set for the event')
-            raise ValueError('No SDS path or inventory is set for the event')
+    #     # Check again if the path and inventory are set
+    #     if sds_path is None or inventory is None:
+    #         logger.error('No SDS path or inventory is set for the event')
+    #         raise ValueError('No SDS path or inventory is set for the event')
         
-        # Initialize the waveforms object, which stores all the waveforms
-        # for the event, whether seismic or not.
-        self.waveforms = Waveforms(
-            sds_path=sds_path, inventory=inventory, event=self)
+    #     # Initialize the waveforms object, which stores all the waveforms
+    #     # for the event, whether seismic or not.
+    #     self.waveforms = Waveforms(
+    #         sds_path=sds_path, inventory=inventory, event=self)
         
 
-        # Find out the earliest and latest arrival times for the event
-        preferred_origin = self.get_preferred_origin()
-        arrival_times = [
-            arrival.get_time() for arrival in preferred_origin.get_arrivals()
-                if arrival.get_time() is not None
-    ]
-        origin_time = self.get_preferred_origin().get_origin_time()
-        arrival_times.append(origin_time)
+    #     # Find out the earliest and latest arrival times for the event
+    #     preferred_origin = self.get_preferred_origin()
+    #     arrival_times = [
+    #         arrival.get_time() for arrival in preferred_origin.get_arrivals()
+    #             if arrival.get_time() is not None
+    # ]
+    #     origin_time = self.get_preferred_origin().get_origin_time()
+    #     arrival_times.append(origin_time)
         
-        # Calculate the buffer
-        if not arrival_times:
-            logger.warning('No valid arrival or origin times found for the event')
-            buffer = (300, 300)  # Default buffer
-        else:
-            earliest_time = min(arrival_times)  # Earliest of all times
-            buffer_before = int(float(origin_time) - float(earliest_time)) + 300
-            buffer_after = 300
-            buffer = (buffer_before, buffer_after)
+    #     # Calculate the buffer
+    #     if not arrival_times:
+    #         logger.warning('No valid arrival or origin times found for the event')
+    #         buffer = (300, 300)  # Default buffer
+    #     else:
+    #         earliest_time = min(arrival_times)  # Earliest of all times
+    #         buffer_before = int(float(origin_time) - float(earliest_time)) + 300
+    #         buffer_after = 300
+    #         buffer = (buffer_before, buffer_after)
             
-        # Read the waveforms
-        self.waveforms.read_waveforms(output=output, instruments=instruments,
-                                      time_buffer=buffer,
-                                      save_local=save_local, rotate_to_zne=rotate_to_zne,
-                                      channels_and_locs=channels_and_locs)
+    #     # Read the waveforms
+    #     self.waveforms.read_waveforms(output=output, instruments=instruments,
+    #                                   time_buffer=buffer,
+    #                                   save_local=save_local, rotate_to_zne=rotate_to_zne,
+    #                                   channels_and_locs=channels_and_locs)
 
-        # Keep the inventory and path for further use
-        self.inventory = inventory
-        self.sds_path = sds_path
+    #     # Keep the inventory and path for further use
+    #     self.inventory = inventory
+    #     self.sds_path = sds_path
 
     def report(self, include_magnitudes=True, include_picks=False, 
                include_arrivals=True, include_origins=False):

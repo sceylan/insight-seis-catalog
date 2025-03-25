@@ -5,4 +5,4 @@ from .magnitude import Magnitude
 from .event import MarsEvent
 from .catalog import Catalog
 from .singlestation import SingleStationParameters
-from .pickarrival import Arrival, Pick
+from .pickarrival import Arrival, Pick, SingleStationPick

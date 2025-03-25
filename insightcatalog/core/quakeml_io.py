@@ -5,7 +5,8 @@ import xmltodict
 from obspy import UTCDateTime
 from .utils.customlogger import logger
 from .datamodel.catalog import (Origin, Catalog, Magnitude, MarsEvent, 
-                                SingleStationParameters, Arrival, Pick)
+                                SingleStationParameters, Arrival, Pick,
+                                SingleStationPick)
 
 # Keys for the location quality
 _QUALITY_KEYS = {
@@ -306,6 +307,36 @@ def _parse_arrival(arrival):
     
     return new_arrival
 
+def _associate_single_station_picks(event_obj, sst_picks):
+    """ Associates the single station extension for Pick objects."""
+    if not sst_picks or event_obj is None:
+        return
+    
+    picks = event_obj.get_picks()
+    for sst_pick in sst_picks:
+        public_id = sst_pick['@publicID']
+
+        if "sst:frequency" in sst_pick:
+            frequency = sst_pick["sst:frequency"]["sst:value"]
+            lower_uncertainty = sst_pick["sst:frequency"]["sst:lowerUncertainty"]
+            upper_uncertainty = sst_pick["sst:frequency"]["sst:upperUncertainty"]
+
+        else:
+            frequency = None
+            lower_uncertainty = None
+            upper_uncertainty = None
+
+        pick_reference = sst_pick['sst:pickReference']
+        for pick in picks:
+            if pick.get_public_id() == pick_reference:
+                sst_pick_obj = SingleStationPick()
+                sst_pick_obj.set_public_id(public_id)
+                sst_pick_obj.set_frequency(frequency)
+                sst_pick_obj.set_freq_lower_uncertainty(lower_uncertainty)
+                sst_pick_obj.set_freq_upper_uncertainty(upper_uncertainty)
+                pick.set_single_station_pick(sst_pick_obj)
+                break
+
 def read_catalog(catalog_file):
     """Parse a QuakeML catalog file"""
     logger.info(f'Reading catalog from {catalog_file}')
@@ -319,16 +350,25 @@ def read_catalog(catalog_file):
 
     # Get the single station information
     sst_origins = None
+    sst_picks = None
     if 'sst:singleStationParameters' in catalog['q:quakeml']:
         sst_parameters = catalog['q:quakeml']['sst:singleStationParameters']
     
+        # Single station origins
         if sst_parameters and 'sst:singleStationOrigin' in sst_parameters:
             sst_origins = sst_parameters['sst:singleStationOrigin']
 
+        # Single station picks
+        if sst_parameters and 'sst:singleStationPick' in sst_parameters:
+            sst_picks = sst_parameters['sst:singleStationPick']
+     
     # Loop through the events and parse the origins
     parsed_events = []
     for event in events:
         _event_obj = _parse_event(event)
+
+        # Associate the single station picks with the event
+        _associate_single_station_picks(_event_obj, sst_picks)
         
         # Get the origins
         origins = event['origin']
@@ -370,6 +410,11 @@ def read_catalog(catalog_file):
                         _arrival_obj.set_lower_uncertainty(lower_uncertainty)
                         _arrival_obj.set_upper_uncertainty(upper_uncertainty)
 
+                        # Associate the SST Pick with the arrival
+                        if _pick_obj.get_single_station_pick():
+                            _arrival_obj.set_single_station_pick(
+                                _pick_obj.get_single_station_pick())
+
                     parsed_arrivals.append(_arrival_obj)
             _origin_obj.set_arrivals(parsed_arrivals)
 
@@ -400,8 +445,7 @@ def read_catalog(catalog_file):
         _ = _event_obj.get_preferred_magnitude()
         _ = _event_obj.get_preferred_origin()
 
-        # Associate single station origins with the basic event
-        # description origins
+        # Associate single station origins with the basic event description origins
         if sst_origins:
             for sst in sst_origins:
                 for origin in parsed_origins:

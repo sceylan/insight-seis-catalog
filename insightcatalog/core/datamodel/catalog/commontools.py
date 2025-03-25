@@ -4,6 +4,21 @@ from obspy import UTCDateTime
 import uuid
 from dateutil import parser
 
+def to_float(value):
+    """
+    Convert a value to float, if possible.
+    
+    Parameters:
+    - value: Any value
+    
+    Returns:
+    - float: Converted value
+    """
+    try:
+        return float(value)
+    except:
+        return None
+    
 def to_datetime(timestamp):
     """
     Parse timestamp into a datetime object, handling various formats.
