@@ -121,11 +121,12 @@ class Catalog:
         if name:
             return self.get_event_by_name(name)
 
-        # If name is not given, then filter the events based on the
-        # given criteria.
+        # If name is not given, then filter the events based on the given criteria.
         selected = []
 
-        # Remove the letter Q from the quality list
+        # Remove the letter Q from the quality list. The user might give the 
+        # quality as 'QA', 'QB', etc. but the quality in the data model is stored
+        # as 'A', 'B', etc.
         if quality:
             quality = [q.replace('Q', '') for q in quality]
 
@@ -153,12 +154,12 @@ class Catalog:
 
             if min_magnitude:
                 if not event.get_preferred_magnitude() or \
-                    event.get_preferred_magnitude().get_value() < min_magnitude:
+                    event.get_preferred_magnitude().get_value() <= min_magnitude:
                     continue
 
             if max_magnitude:
                 if not event.get_preferred_magnitude() or \
-                    event.get_preferred_magnitude().get_value() > max_magnitude:
+                    event.get_preferred_magnitude().get_value() >= max_magnitude:
                     continue
 
             if quality:
