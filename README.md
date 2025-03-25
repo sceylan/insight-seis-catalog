@@ -12,7 +12,7 @@ We suggest that you work with virtual environments. If you already have one, act
 
 #### 1. Clone this repository
 ```bash
-git clone https://github.com/your-username/insight-seis-catalog.git
+git clone https://github.com/sceylan/insight-seis-catalog.git
 cd insight-seis-catalog
 ```
 
@@ -32,3 +32,16 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -e .
 ```
 
+
+## Citation
+
+We plan to distribute this repository as a supplement to an upcoming paper. Until then, please consider citing these studies where relevant if you use this package:
+
+The last official release of InSight catalog itself:
+- InSight Marsquake Service (2023). Mars Seismic Catalogue, InSight Mission; V14 2023-04-01. ETHZ, IPGP, JPL, ICL, Univ. Bristol. https://doi.org/10.12686/a21
+
+Related papers:
+
+- Ceylan, S., Clinton, J.F., Giardini, D., Stähler, S.C., Horleston, A., Kawamura, T., Böse, M., et al., 2022, The marsquake catalogue from InSight, sols 0–1011. Physics of the Earth and Planetary Interiors, Elsevier BV. doi:10.1016/j.pepi.2022.106943
+
+- Clinton, J.F., Ceylan, S., Driel, M. van, Giardini, D., Stähler, S.C., Böse, M., Charalambous, C., et al., 2021, The Marsquake catalogue from InSight, sols 0–478. Physics of the Earth and Planetary Interiors, Elsevier BV. doi:10.1016/j.pepi.2020.106595
