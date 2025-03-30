@@ -35,7 +35,11 @@ pip install -e .
 
 ## Citation
 
-We plan to distribute this repository as a supplement to an upcoming paper. Until then, please consider citing these studies where relevant if you use this package:
+We plan to distribute this repository as a supplement to an upcoming reference catalog paper, with tentative title of:
+```
+J. Clinton et al., MQS reference catalog, in prep.
+```
+Until then, please consider citing these studies where relevant if you use this package:
 
 The last official release of InSight catalog itself:
 - InSight Marsquake Service (2023). Mars Seismic Catalogue, InSight Mission; V14 2023-04-01. ETHZ, IPGP, JPL, ICL, Univ. Bristol. https://doi.org/10.12686/a21

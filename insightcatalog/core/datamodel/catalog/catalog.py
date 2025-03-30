@@ -106,6 +106,18 @@ class Catalog:
                 return event
         return None
     
+    def get_list_of_events_by_name(self, event_names):
+        """ Get a list of events by their names. """
+        if isinstance(event_names, str):
+            event_names = [event_names]
+            
+        events = []
+        for event in self.events:
+            if event.get_event_name() in event_names:
+                events.append(event)
+        return events
+    
+
     def select(self, earth_event_types=None, mars_event_types=None, 
                min_magnitude=None, max_magnitude=None, quality=None, 
                name=None):
